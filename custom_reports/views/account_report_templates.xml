@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Paleta Wascar Dev
+    Azul principal:   #0D47A1
+    Azul secundario:  #1976D2
+    Azul claro:       #64B5F6
+    Gris oscuro:      #212121
+    Gris claro:       #E0E0E0
+-->
+<odoo>
+<template id="report_invoice_document_custom" inherit_id="account.report_invoice_document" name="Factura - Wascar Dev">
+
+    <!-- Cabecera de información con paleta de marca -->
+    <xpath expr="//div[@id='informations']" position="replace">
+        <table id="informations" style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+            <tr>
+                <td t-if="move.ref"
+                    style="width:25%;padding:8px 12px;background:#FAFAFA;border:1px solid #E0E0E0;vertical-align:top;">
+                    <div style="font-size:10px;color:#212121;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;">
+                        Referencia
+                    </div>
+                    <div style="font-size:13px;font-weight:700;color:#212121;" t-field="move.ref"/>
+                </td>
+                <td t-if="move.invoice_date"
+                    style="width:25%;padding:8px 12px;background:#FAFAFA;border:1px solid #E0E0E0;vertical-align:top;">
+                    <div style="font-size:10px;color:#212121;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;">
+                        <t t-if="move.move_type == 'out_invoice'">Fecha de Factura</t>
+                        <t t-elif="move.move_type == 'out_refund'">Fecha de Nota de Crédito</t>
+                        <t t-else="">Fecha</t>
+                    </div>
+                    <div style="font-size:13px;font-weight:700;color:#212121;" t-field="move.invoice_date"/>
+                </td>
+                <td t-if="move.invoice_date_due and move.move_type == 'out_invoice'"
+                    style="width:25%;padding:8px 12px;background:#E3F2FD;border:1px solid #64B5F6;vertical-align:top;">
+                    <div style="font-size:9px;color:#1976D2;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;">
+                        Fecha de Vencimiento
+                    </div>
+                    <div style="font-size:12px;font-weight:700;color:#0D47A1;" t-field="move.invoice_date_due"/>
+                </td>
+                <td t-if="move.invoice_user_id"
+                    style="width:25%;padding:8px 12px;background:#FAFAFA;border:1px solid #E0E0E0;vertical-align:top;">
+                    <div style="font-size:10px;color:#212121;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;">
+                        Vendedor
+                    </div>
+                    <div style="font-size:13px;font-weight:700;color:#212121;" t-field="move.invoice_user_id"/>
+                </td>
+            </tr>
+        </table>
+    </xpath>
+
+    <!-- Encabezado de la tabla con azul principal -->
+    <xpath expr="//thead/tr" position="replace">
+        <tr style="background-color:#0D47A1;">
+            <th name="th_description"
+                style="padding:7px 10px;color:#FFFFFF;font-size:12px;text-align:left;font-weight:700;border:none;letter-spacing:.4px;">
+                Descripción
+            </th>
+            <th name="th_account"
+                style="padding:7px 10px;color:#FFFFFF;font-size:12px;text-align:left;font-weight:700;border:none;"
+                groups="account.group_show_line_subtotals_tax_selection">
+                Cuenta
+            </th>
+            <th name="th_quantity"
+                style="padding:7px 10px;color:#FFFFFF;font-size:12px;text-align:right;font-weight:700;white-space:nowrap;border:none;">
+                Cantidad
+            </th>
+            <th name="th_priceunit"
+                style="padding:7px 10px;color:#FFFFFF;font-size:12px;text-align:right;font-weight:700;white-space:nowrap;border:none;">
+                Precio Unitario
+            </th>
+            <th name="th_discount"
+                style="padding:7px 10px;color:#FFFFFF;font-size:12px;text-align:right;font-weight:700;border:none;">
+            </th>
+            <th name="th_taxes"
+                style="padding:7px 10px;color:#FFFFFF;font-size:12px;text-align:right;font-weight:700;border:none;">
+                Impuestos
+            </th>
+            <th name="th_subtotal"
+                style="padding:7px 10px;color:#FFFFFF;font-size:12px;text-align:right;font-weight:700;border:none;">
+                Importe
+            </th>
+        </tr>
+    </xpath>
+
+    <!-- Borde superior del cuerpo con azul principal -->
+    <xpath expr="//tbody[@class='invoice_tbody']" position="attributes">
+        <attribute name="style">border-top: 2px solid #0D47A1;</attribute>
+    </xpath>
+
+</template>
+</odoo>

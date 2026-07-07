@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_commission_root" name="Comisiones" sequence="85"/>
+
+    <menuitem id="menu_commission_lines" name="Comisiones"
+              parent="menu_commission_root"
+              action="action_commission_line"
+              sequence="10"/>
+
+    <menuitem id="menu_commission_config" name="Configuración"
+              parent="menu_commission_root"
+              sequence="90"/>
+
+    <menuitem id="menu_commission_employees" name="Porcentaje por Empleado"
+              parent="menu_commission_config"
+              action="action_hr_employee_commission"
+              sequence="10"/>
+
+</odoo>

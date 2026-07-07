@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_commission_line_list" model="ir.ui.view">
+        <field name="name">commission.line.list</field>
+        <field name="model">commission.line</field>
+        <field name="arch" type="xml">
+            <list string="Comisiones"
+                  decoration-success="state == 'paid'"
+                  decoration-info="state == 'to_pay'">
+                <field name="invoice_date"/>
+                <field name="move_id"/>
+                <field name="partner_id"/>
+                <field name="employee_id"/>
+                <field name="base_amount"/>
+                <field name="commission_percent"/>
+                <field name="commission_amount" sum="Total"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_commission_line_form" model="ir.ui.view">
+        <field name="name">commission.line.form</field>
+        <field name="model">commission.line</field>
+        <field name="arch" type="xml">
+            <form string="Comisión">
+                <header>
+                    <button name="action_mark_paid" type="object"
+                            string="Marcar como Pagada" class="oe_highlight"
+                            invisible="state == 'paid'"/>
+                    <button name="action_reset_to_pay" type="object"
+                            string="Volver a Pendiente"
+                            invisible="state == 'to_pay'"/>
+                    <button name="%(action_report_commission_line)d" type="action"
+                            string="Imprimir" class="btn-secondary"/>
+                    <button name="action_send_commission_email" type="object"
+                            string="Enviar por Correo" class="btn-secondary"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="move_id"/>
+                            <field name="partner_id"/>
+                            <field name="invoice_date"/>
+                            <field name="employee_id"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="base_amount"/>
+                            <field name="commission_percent"/>
+                            <field name="commission_amount"/>
+                            <field name="payment_date"/>
+                        </group>
+                    </group>
+                    <group string="Información Interna" name="internal_info">
+                        <span class="text-muted" colspan="2">
+                            Esta información es de uso interno: no se incluye en la impresión ni en el correo enviado al empleado.
+                        </span>
+                        <field name="payment_proof" widget="image" string="Comprobante de Pago" class="oe_avatar"/>
+                        <field name="note" placeholder="Notas adicionales sobre esta comisión..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_commission_line_search" model="ir.ui.view">
+        <field name="name">commission.line.search</field>
+        <field name="model">commission.line</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Comisiones">
+                <field name="move_id"/>
+                <field name="partner_id"/>
+                <field name="employee_id"/>
+                <filter string="Pendientes" name="to_pay" domain="[('state', '=', 'to_pay')]"/>
+                <filter string="Pagadas" name="paid" domain="[('state', '=', 'paid')]"/>
+                <separator/>
+                <filter string="Fecha Factura" name="invoice_date" date="invoice_date"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter string="Empleado" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Cliente" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Estado" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_commission_line_pivot" model="ir.ui.view">
+        <field name="name">commission.line.pivot</field>
+        <field name="model">commission.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Análisis de Comisiones">
+                <field name="employee_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="commission_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_commission_line" model="ir.actions.act_window">
+        <field name="name">Comisiones</field>
+        <field name="res_model">commission.line</field>
+        <field name="view_mode">list,form,pivot</field>
+        <field name="search_view_id" ref="view_commission_line_search"/>
+    </record>
+
+</odoo>

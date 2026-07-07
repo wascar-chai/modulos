@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="mail_template_commission_line" model="mail.template">
+        <field name="name">Comisión: Notificación al Empleado</field>
+        <field name="model_id" ref="model_commission_line"/>
+        <field name="subject">Tu comisión {{ object.name }}</field>
+        <field name="email_to">{{ object.employee_id.work_email or '' }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="report_template_ids" eval="[(6, 0, [ref('action_report_commission_line')])]"/>
+        <field name="body_html" type="html">
+            <div style="margin: 0px; padding: 0px;">
+                <p>Hola <t t-out="object.employee_id.name"/>,</p>
+                <p>Te informamos que tienes una comisión generada con los siguientes detalles:</p>
+                <ul>
+                    <li>Factura: <t t-out="object.move_id.name or ''"/></li>
+                    <li>Cliente: <t t-out="object.partner_id.name or ''"/></li>
+                    <li>Fecha de factura: <t t-out="object.invoice_date or ''"/></li>
+                    <li>Base de cálculo: <t t-out="'%.2f' % object.base_amount"/> <t t-out="object.currency_id.symbol or ''"/></li>
+                    <li>% Comisión: <t t-out="object.commission_percent"/>%</li>
+                    <li>Importe de la comisión: <t t-out="'%.2f' % object.commission_amount"/> <t t-out="object.currency_id.symbol or ''"/></li>
+                    <li>Estado: <t t-out="'Pagada' if object.state == 'paid' else 'Pendiente de pago'"/></li>
+                </ul>
+                <p t-if="object.note">Nota: <t t-out="object.note"/></p>
+                <p>Adjuntamos el detalle de la comisión en formato PDF.</p>
+                <p>Saludos.</p>
+            </div>
+        </field>
+    </record>
+
+</odoo>

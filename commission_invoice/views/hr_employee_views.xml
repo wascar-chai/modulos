@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_hr_employee_commission_list" model="ir.ui.view">
+        <field name="name">hr.employee.commission.list</field>
+        <field name="model">hr.employee</field>
+        <field name="arch" type="xml">
+            <list string="Porcentaje de Comisión por Empleado" editable="bottom" create="false" delete="false">
+                <field name="name"/>
+                <field name="job_title"/>
+                <field name="user_id"/>
+                <field name="commission_percent"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_hr_employee_commission" model="ir.actions.act_window">
+        <field name="name">Porcentaje de Comisión por Empleado</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_hr_employee_commission_list"/>
+    </record>
+
+    <record id="view_hr_employee_form_commission_inherit" model="ir.ui.view">
+        <field name="name">hr.employee.form.commission</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='active_group']" position="after">
+                <group string="Comisión" name="commission_group">
+                    <field name="commission_percent"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

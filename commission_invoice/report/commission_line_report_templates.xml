@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_commission_line_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <h2>
+                    Comisión
+                    <span t-field="doc.name"/>
+                </h2>
+                <div class="row mt-3 mb32">
+                    <div class="col-6">
+                        <strong>Empleado</strong>
+                        <p t-field="doc.employee_id.name" class="m-0"/>
+                    </div>
+                    <div class="col-6">
+                        <strong>Estado</strong>
+                        <p class="m-0">
+                            <span t-if="doc.state == 'to_pay'">Pendiente de pago</span>
+                            <span t-if="doc.state == 'paid'">Pagada</span>
+                        </p>
+                    </div>
+                </div>
+                <table class="table table-sm o_main_table">
+                    <thead>
+                        <tr>
+                            <th>Factura</th>
+                            <th>Cliente</th>
+                            <th>Fecha factura</th>
+                            <th class="text-end">Base de cálculo</th>
+                            <th class="text-end">% Comisión</th>
+                            <th class="text-end">Importe comisión</th>
+                            <th>Fecha de pago</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span t-field="doc.move_id.name"/>
+                            </td>
+                            <td>
+                                <span t-field="doc.partner_id.name"/>
+                            </td>
+                            <td>
+                                <span t-field="doc.invoice_date"/>
+                            </td>
+                            <td class="text-end">
+                                <span t-field="doc.base_amount"
+                                      t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                            </td>
+                            <td class="text-end">
+                                <span t-field="doc.commission_percent"/> %
+                            </td>
+                            <td class="text-end">
+                                <span t-field="doc.commission_amount"
+                                      t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                            </td>
+                            <td>
+                                <span t-field="doc.payment_date"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div t-if="doc.note" class="mt-4">
+                    <strong>Nota</strong>
+                    <p t-field="doc.note"/>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_commission_line">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="commission_invoice.report_commission_line_document"/>
+            </t>
+        </t>
+    </template>
+
+</odoo>
