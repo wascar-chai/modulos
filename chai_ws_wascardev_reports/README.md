@@ -72,14 +72,38 @@ Al desinstalar se devuelve la acción al informe estándar de Odoo, de modo que 
 botón sigue funcionando aunque el módulo ya no esté. Probado: instalar,
 desinstalar y volver a instalar deja la cotización funcionando en los tres casos.
 
+## Por qué el membrete va dentro del documento
+
+En una instalación el PDF salía con el logo y los datos montados encima del
+título, y con recuadros alrededor de todas las celdas. La causa no eran los
+datos ni el formato de papel -eran idénticos-, sino que **el CSS del informe se
+carga por HTTP desde la dirección de la base** (`<base href="...">` apuntando a
+`web.base.url`). Cuando el servidor no puede leer esa dirección, el PDF se
+dibuja sin las hojas de estilo de Odoo y todo se descoloca.
+
+Dos decisiones de diseño lo dejan a prueba de eso:
+
+1. **El membrete se dibuja dentro del documento**, no en la zona de cabecera de
+   wkhtmltopdf. Esa zona vive dentro del margen superior; si el contenido no le
+   cabe justo, wkhtmltopdf lo desplaza y se monta sobre el texto. Con una línea
+   azul de 2 px no hay nada que desplazar. En documentos de varias páginas, la
+   primera lleva el membrete y las siguientes solo la línea.
+2. **La plantilla trae su propio estilo y anula el ajeno**: cada celda lleva
+   `border:0 !important` y hay un bloque `<style>` propio en el documento y en
+   el pie. Los bordes que sí queremos van escritos en cada celda, que manda
+   sobre cualquier hoja de estilos.
+
+Con eso el PDF sale igual con estilos o sin ellos. Aun así, conviene arreglar la
+causa en el servidor: si el PDF sigue saliendo sin estilos, se pone el parámetro
+de sistema **`report.url`** con la dirección local del servidor (por ejemplo
+`http://localhost:8069`), y wkhtmltopdf deja de salir a Internet a buscar el CSS.
+
 ## Nota técnica
 
 El PDF lo dibuja wkhtmltopdf, que es un WebKit viejo: no entiende flexbox, grid
 ni degradados. Por eso todo el armado va con tablas y colores planos.
 
-Los márgenes del formato de papel no son decorativos: **arriba 44 mm** tiene que
-ser mayor que la cabecera (el logo mide 86 px ≈ 23 mm) más su separación, y
-**abajo 42 mm** mayor que el pie con los datos de pago. Si se quedan cortos,
-wkhtmltopdf recorta: la cabecera desaparece y del pie solo se ve la primera
-línea. Si algún día se agranda el logo o se añade otra cuenta bancaria, hay que
-subir el margen correspondiente.
+El margen inferior (42 mm) tiene que seguir siendo mayor que el pie con los
+datos de pago: si se queda corto, wkhtmltopdf lo recorta y solo se ve la primera
+línea. Si algún día se añade otra cuenta bancaria, hay que subirlo. El margen
+superior ya no es crítico (12 mm), porque arriba solo va la línea azul.

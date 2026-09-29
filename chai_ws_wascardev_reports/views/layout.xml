@@ -24,11 +24,11 @@
             su separacion: si se queda corto, wkhtmltopdf recorta la cabecera y
             solo se ve su ultima linea.
         -->
-        <field name="margin_top">44</field>
+        <field name="margin_top">12</field>
         <field name="margin_bottom">42</field>
         <field name="margin_left">10</field>
         <field name="margin_right">10</field>
-        <field name="header_spacing">6</field>
+        <field name="header_spacing">4</field>
         <field name="header_line" eval="False"/>
         <field name="dpi">96</field>
     </record>
@@ -42,38 +42,15 @@
         <t t-set="empresa" t-value="doc.company_id"/>
         <t t-set="socio_empresa" t-value="empresa.partner_id"/>
 
-        <!-- ══════════ CABECERA ══════════ -->
+        <!--
+            La cabecera de pagina se deja en una linea y nada mas. El membrete
+            -logo y datos- va DENTRO del documento, no aqui: wkhtmltopdf dibuja
+            esta zona dentro del margen superior, y si el contenido no le cabe
+            justo, lo desplaza y se monta encima del texto. Con una linea no hay
+            nada que desplazar, y el membrete se comporta como un bloque mas.
+        -->
         <div class="header">
-            <table style="width:100%;border-collapse:collapse;">
-                <tr>
-                    <td style="width:42%;vertical-align:middle;">
-                        <img t-if="empresa.logo" t-att-src="image_data_uri(empresa.logo)"
-                             style="max-height:86px;max-width:320px;" alt="Logo"/>
-                        <div t-else="" style="font-size:26px;font-weight:700;color:#0B1F3A;">
-                            <span t-field="empresa.name"/>
-                        </div>
-                    </td>
-                    <td style="width:58%;vertical-align:middle;text-align:right;font-size:11.5px;color:#64748B;line-height:1.55;">
-                        <div style="font-size:16px;font-weight:700;color:#0B1F3A;letter-spacing:.3px;margin-bottom:2px;">
-                            <span t-field="empresa.name"/>
-                        </div>
-                        <div t-if="empresa.vat">
-                            <t t-out="empresa.account_fiscal_country_id.vat_label or 'RNC / Cédula'"/>:
-                            <span t-field="empresa.vat"/>
-                        </div>
-                        <div t-if="socio_empresa.street or socio_empresa.city">
-                            <span t-if="socio_empresa.street" t-field="socio_empresa.street"/><t t-if="socio_empresa.street and socio_empresa.city">, </t><span t-if="socio_empresa.city" t-field="socio_empresa.city"/>
-                        </div>
-                        <div t-if="socio_empresa.phone or socio_empresa.mobile">
-                            <span t-if="socio_empresa.phone" t-field="socio_empresa.phone"/><t t-if="socio_empresa.phone and socio_empresa.mobile"> · </t><span t-if="socio_empresa.mobile" t-field="socio_empresa.mobile"/>
-                        </div>
-                        <div t-if="socio_empresa.email or socio_empresa.website">
-                            <span t-if="socio_empresa.email" t-field="socio_empresa.email"/><t t-if="socio_empresa.email and socio_empresa.website"> · </t><span t-if="socio_empresa.website" t-field="socio_empresa.website"/>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-            <div style="height:2px;background-color:#2878F8;margin-top:8px;"/>
+            <div style="height:2px;background-color:#2878F8;"/>
         </div>
 
         <!-- ══════════ CUERPO ══════════ -->
@@ -93,23 +70,31 @@
             compania (Contabilidad > Configuracion > Cuentas bancarias).
         -->
         <div class="footer">
+            <!-- El pie se dibuja como documento aparte, asi que lleva su propio
+                 estilo: si no, hereda los bordes y la tipografia de la base. -->
+            <style>
+                .chai-pie, .chai-pie * { font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+                .chai-pie table { border-collapse: collapse; border: 0 !important; }
+                .chai-pie tr, .chai-pie td, .chai-pie th { border: 0 !important; }
+                .chai-pie * { border-color: transparent; }
+            </style>
             <t t-set="cuentas" t-value="socio_empresa.bank_ids.filtered(lambda b: not b.company_id or b.company_id == empresa)"/>
-            <div style="border-top:2px solid #E2E8F0;padding-top:7px;">
-                <table style="width:100%;border-collapse:collapse;">
+            <div class="chai-pie" style="border-top:2px solid #E2E8F0 !important;padding-top:7px;">
+                <table style="width:100%;border-collapse:collapse !important;">
                     <tr>
-                        <td style="width:62%;vertical-align:top;">
+                        <td style="border:0 !important;width:62%;vertical-align:top;">
                             <t t-if="cuentas">
                                 <div style="font-size:10px;font-weight:700;color:#2878F8;letter-spacing:1.4px;margin-bottom:4px;">DATOS PARA EL PAGO</div>
-                                <table style="border-collapse:collapse;font-size:11.5px;">
+                                <table style="border-collapse:collapse !important;font-size:11.5px;">
                                     <tr t-foreach="cuentas" t-as="cuenta">
-                                        <td style="padding:1px 0;color:#0B1F3A;font-weight:700;white-space:nowrap;">
+                                        <td style="border:0 !important;padding:1px 0;color:#0B1F3A;font-weight:700;white-space:nowrap;">
                                             <span t-if="cuenta.bank_id" t-field="cuenta.bank_id.name"/>
                                             <span t-else="">Cuenta</span>
                                             <span t-if="cuenta.chai_tipo_cuenta" style="font-weight:400;color:#64748B;">
                                                 (<t t-out="dict(cuenta._fields['chai_tipo_cuenta'].selection)[cuenta.chai_tipo_cuenta]"/>)
                                             </span>
                                         </td>
-                                        <td style="padding:1px 0 1px 16px;color:#475569;white-space:nowrap;">
+                                        <td style="border:0 !important;padding:1px 0 1px 16px;color:#475569;white-space:nowrap;">
                                             <span t-field="cuenta.acc_number"/>
                                         </td>
                                     </tr>
@@ -119,7 +104,7 @@
                                 </div>
                             </t>
                         </td>
-                        <td style="width:38%;vertical-align:bottom;text-align:right;font-size:10.5px;color:#94A3B8;">
+                        <td style="border:0 !important;width:38%;vertical-align:bottom;text-align:right;font-size:10.5px;color:#94A3B8;">
                             <div t-if="empresa.report_header">
                                 <span t-field="empresa.report_header"/>
                             </div>

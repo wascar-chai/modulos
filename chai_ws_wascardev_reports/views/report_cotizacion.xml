@@ -14,15 +14,71 @@
             <t t-set="titulo" t-value="'PROFORMA' if es_proforma else ('COTIZACIÓN' if es_borrador else 'ORDEN DE VENTA')"/>
             <t t-set="cliente" t-value="doc.partner_id"/>
 
-            <!-- ═══════════ TÍTULO ═══════════ -->
-            <table style="width:100%;border-collapse:collapse;margin-bottom:4px;">
+            <!--
+                Estilo propio del documento. No es decoracion: en algunas bases
+                hay CSS que le pone borde a todas las celdas de todas las tablas
+                y cambia la tipografia, y el PDF sale con recuadros por todos
+                lados. Esto lo neutraliza. Los bordes que SI queremos van en el
+                atributo style de cada celda, que manda sobre esta regla.
+            -->
+            <style>
+                .chai-cot, .chai-cot * { font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+                .chai-cot table { border-collapse: collapse; border: 0 !important; }
+                .chai-cot tr, .chai-cot td, .chai-cot th { border: 0 !important; }
+                .chai-cot * { border-color: transparent; }
+                .chai-cot img { border: 0 !important; }
+            </style>
+
+            <div class="chai-cot">
+
+            <!-- ═══════════ MEMBRETE ═══════════ -->
+            <!--
+                Va dentro del documento, no en la cabecera de pagina: asi no
+                depende del margen superior y sale igual en cualquier base.
+                En documentos de varias paginas, la primera lleva el membrete y
+                las siguientes solo la linea azul de la cabecera.
+            -->
+            <t t-set="empresa" t-value="doc.company_id"/>
+            <t t-set="socio_empresa" t-value="empresa.partner_id"/>
+            <table style="width:100%;border-collapse:collapse !important;margin-bottom:10px;">
                 <tr>
-                    <td style="vertical-align:bottom;">
+                    <td style="border:0 !important;width:42%;vertical-align:top;">
+                        <img t-if="empresa.logo" t-att-src="image_data_uri(empresa.logo)"
+                             style="max-height:86px;max-width:320px;" alt="Logo"/>
+                        <div t-else="" style="font-size:26px;font-weight:700;color:#0B1F3A;">
+                            <span t-field="empresa.name"/>
+                        </div>
+                    </td>
+                    <td style="border:0 !important;width:58%;vertical-align:top;text-align:right;font-size:11.5px;color:#64748B;line-height:1.55;">
+                        <div style="font-size:16px;font-weight:700;color:#0B1F3A;letter-spacing:.3px;margin-bottom:2px;">
+                            <span t-field="empresa.name"/>
+                        </div>
+                        <div t-if="empresa.vat">
+                            <t t-out="empresa.account_fiscal_country_id.vat_label or 'RNC / Cédula'"/>:
+                            <span t-field="empresa.vat"/>
+                        </div>
+                        <div t-if="socio_empresa.street or socio_empresa.city">
+                            <span t-if="socio_empresa.street" t-field="socio_empresa.street"/><t t-if="socio_empresa.street and socio_empresa.city">, </t><span t-if="socio_empresa.city" t-field="socio_empresa.city"/>
+                        </div>
+                        <div t-if="socio_empresa.phone or socio_empresa.mobile">
+                            <span t-if="socio_empresa.phone" t-field="socio_empresa.phone"/><t t-if="socio_empresa.phone and socio_empresa.mobile"> · </t><span t-if="socio_empresa.mobile" t-field="socio_empresa.mobile"/>
+                        </div>
+                        <div t-if="socio_empresa.email or socio_empresa.website">
+                            <span t-if="socio_empresa.email" t-field="socio_empresa.email"/><t t-if="socio_empresa.email and socio_empresa.website"> · </t><span t-if="socio_empresa.website" t-field="socio_empresa.website"/>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- ═══════════ TÍTULO ═══════════ -->
+            <table style="width:100%;border-collapse:collapse !important;margin-bottom:4px;">
+                <tr>
+                    <td style="border:0 !important;vertical-align:bottom;">
                         <div style="font-size:27px;font-weight:700;color:#0B1F3A;letter-spacing:1.5px;line-height:1.1;">
                             <t t-out="titulo"/>
                         </div>
                     </td>
-                    <td style="text-align:right;vertical-align:bottom;white-space:nowrap;">
+                    <td style="border:0 !important;text-align:right;vertical-align:bottom;white-space:nowrap;">
                         <span style="font-size:12px;color:#64748B;letter-spacing:1px;">N.º </span>
                         <span style="font-size:22px;font-weight:700;color:#2878F8;" t-field="doc.name"/>
                     </td>
@@ -31,9 +87,9 @@
             <div style="height:3px;background-color:#2878F8;margin-bottom:14px;"/>
 
             <!-- ═══════════ CLIENTE Y DATOS ═══════════ -->
-            <table style="width:100%;border-collapse:collapse;margin-bottom:14px;">
+            <table style="width:100%;border-collapse:collapse !important;margin-bottom:14px;">
                 <tr>
-                    <td style="width:53%;vertical-align:top;background-color:#F8FAFD;border:1px solid #E2E8F0;border-left:3px solid #2878F8;padding:9px 13px;">
+                    <td style="width:53%;vertical-align:top;background-color:#F8FAFD;border:1px solid #E2E8F0 !important;border-left:3px solid #2878F8 !important;padding:9px 13px;">
                         <div style="font-size:10px;font-weight:700;color:#2878F8;letter-spacing:1.4px;margin-bottom:5px;">CLIENTE</div>
                         <div style="font-size:16px;font-weight:700;color:#0B1F3A;line-height:1.25;">
                             <span t-field="cliente.name"/>
@@ -54,39 +110,39 @@
                         </div>
                     </td>
 
-                    <td style="width:2%;"/>
+                    <td style="border:0 !important;width:2%;"/>
 
-                    <td style="width:45%;vertical-align:top;border:1px solid #E2E8F0;padding:9px 13px;">
-                        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                    <td style="width:45%;vertical-align:top;border:1px solid #E2E8F0 !important;padding:9px 13px;">
+                        <table style="width:100%;border-collapse:collapse !important;font-size:12px;">
                             <tr t-if="doc.date_order">
-                                <td style="padding:2px 0;color:#64748B;white-space:nowrap;">
+                                <td style="border:0 !important;padding:2px 0;color:#64748B;white-space:nowrap;">
                                     <t t-if="es_borrador">Fecha</t><t t-else="">Fecha del pedido</t>
                                 </td>
-                                <td style="padding:2px 0;text-align:right;font-weight:700;color:#0B1F3A;">
+                                <td style="border:0 !important;padding:2px 0;text-align:right;font-weight:700;color:#0B1F3A;">
                                     <span t-field="doc.date_order" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
                                 </td>
                             </tr>
                             <tr t-if="doc.validity_date and es_borrador">
-                                <td style="padding:2px 0;color:#64748B;white-space:nowrap;">Válida hasta</td>
-                                <td style="padding:2px 0;text-align:right;font-weight:700;color:#2878F8;">
+                                <td style="border:0 !important;padding:2px 0;color:#64748B;white-space:nowrap;">Válida hasta</td>
+                                <td style="border:0 !important;padding:2px 0;text-align:right;font-weight:700;color:#2878F8;">
                                     <span t-field="doc.validity_date"/>
                                 </td>
                             </tr>
                             <tr t-if="doc.client_order_ref">
-                                <td style="padding:2px 0;color:#64748B;white-space:nowrap;">Su referencia</td>
-                                <td style="padding:2px 0;text-align:right;font-weight:700;color:#0B1F3A;">
+                                <td style="border:0 !important;padding:2px 0;color:#64748B;white-space:nowrap;">Su referencia</td>
+                                <td style="border:0 !important;padding:2px 0;text-align:right;font-weight:700;color:#0B1F3A;">
                                     <span t-field="doc.client_order_ref"/>
                                 </td>
                             </tr>
                             <tr t-if="doc.user_id">
-                                <td style="padding:2px 0;color:#64748B;white-space:nowrap;">Responsable</td>
-                                <td style="padding:2px 0;text-align:right;font-weight:700;color:#0B1F3A;">
+                                <td style="border:0 !important;padding:2px 0;color:#64748B;white-space:nowrap;">Responsable</td>
+                                <td style="border:0 !important;padding:2px 0;text-align:right;font-weight:700;color:#0B1F3A;">
                                     <span t-field="doc.user_id.name"/>
                                 </td>
                             </tr>
                             <tr t-if="doc.payment_term_id">
-                                <td style="padding:2px 0;color:#64748B;white-space:nowrap;">Forma de pago</td>
-                                <td style="padding:2px 0;text-align:right;font-weight:700;color:#0B1F3A;">
+                                <td style="border:0 !important;padding:2px 0;color:#64748B;white-space:nowrap;">Forma de pago</td>
+                                <td style="border:0 !important;padding:2px 0;text-align:right;font-weight:700;color:#0B1F3A;">
                                     <span t-field="doc.payment_term_id.name"/>
                                 </td>
                             </tr>
@@ -101,15 +157,15 @@
             <t t-set="hay_impuestos" t-value="any(imp.amount for l in lineas for imp in l.tax_id)"/>
             <t t-set="solo_exentos" t-value="any(l.tax_id for l in lineas) and not hay_impuestos"/>
 
-            <table style="width:100%;border-collapse:collapse;">
-                <thead>
+            <table style="width:100%;border-collapse:collapse !important;">
+                <thead style="border:0 !important;">
                     <tr style="background-color:#0B1F3A;">
-                        <th style="padding:7px 10px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:left;">DESCRIPCIÓN</th>
-                        <th style="padding:7px 8px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">CANT.</th>
-                        <th style="padding:7px 8px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">PRECIO</th>
-                        <th t-if="hay_descuento" style="padding:7px 8px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">DESC.</th>
-                        <th t-if="hay_impuestos" style="padding:7px 8px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">IMP.</th>
-                        <th style="padding:7px 10px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">IMPORTE</th>
+                        <th style="border:0 !important;padding:7px 10px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:left;">DESCRIPCIÓN</th>
+                        <th style="border:0 !important;padding:7px 8px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">CANT.</th>
+                        <th style="border:0 !important;padding:7px 8px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">PRECIO</th>
+                        <th t-if="hay_descuento" style="border:0 !important;padding:7px 8px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">DESC.</th>
+                        <th t-if="hay_impuestos" style="border:0 !important;padding:7px 8px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">IMP.</th>
+                        <th style="border:0 !important;padding:7px 10px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">IMPORTE</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -119,8 +175,8 @@
                         <t t-set="subtotal_seccion" t-value="subtotal_seccion + line.price_subtotal"/>
 
                         <t t-if="not line.display_type and line.product_type != 'combo'">
-                            <tr style="border-bottom:1px solid #EDF2F7;">
-                                <td style="padding:8px 10px;font-size:13px;color:#0B1F3A;vertical-align:top;">
+                            <tr style="border-bottom:1px solid #EDF2F7 !important;">
+                                <td style="border:0 !important;padding:8px 10px;font-size:13px;color:#0B1F3A;vertical-align:top;">
                                     <div style="font-weight:700;">
                                         <span t-if="line.product_id" t-field="line.product_id.display_name"/>
                                         <span t-else="" t-field="line.name"/>
@@ -130,20 +186,20 @@
                                         <span t-out="chr(10).join(line.name.split(chr(10))[1:]).strip()"/>
                                     </div>
                                 </td>
-                                <td style="padding:8px 8px;font-size:13px;color:#334155;text-align:right;white-space:nowrap;vertical-align:top;">
+                                <td style="border:0 !important;padding:8px 8px;font-size:13px;color:#334155;text-align:right;white-space:nowrap;vertical-align:top;">
                                     <span t-field="line.product_uom_qty"/>
                                     <span style="color:#94A3B8;font-size:11px;" t-field="line.product_uom.name"/>
                                 </td>
-                                <td style="padding:8px 8px;font-size:13px;color:#334155;text-align:right;white-space:nowrap;vertical-align:top;">
+                                <td style="border:0 !important;padding:8px 8px;font-size:13px;color:#334155;text-align:right;white-space:nowrap;vertical-align:top;">
                                     <span t-field="line.price_unit" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
                                 </td>
-                                <td t-if="hay_descuento" style="padding:8px 8px;font-size:13px;color:#334155;text-align:right;vertical-align:top;white-space:nowrap;">
+                                <td t-if="hay_descuento" style="border:0 !important;padding:8px 8px;font-size:13px;color:#334155;text-align:right;vertical-align:top;white-space:nowrap;">
                                     <t t-if="line.discount"><span t-out="line.discount" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/>%</t>
                                 </td>
-                                <td t-if="hay_impuestos" style="padding:8px 8px;font-size:11px;color:#64748B;text-align:right;vertical-align:top;white-space:nowrap;">
+                                <td t-if="hay_impuestos" style="border:0 !important;padding:8px 8px;font-size:11px;color:#64748B;text-align:right;vertical-align:top;white-space:nowrap;">
                                     <span t-out="', '.join([(imp.invoice_label or imp.name) for imp in line.tax_id if imp.amount])"/>
                                 </td>
-                                <td style="padding:8px 10px;font-size:13px;font-weight:700;color:#0B1F3A;text-align:right;white-space:nowrap;vertical-align:top;">
+                                <td style="border:0 !important;padding:8px 10px;font-size:13px;font-weight:700;color:#0B1F3A;text-align:right;white-space:nowrap;vertical-align:top;">
                                     <span t-if="doc.company_price_include == 'tax_included'" t-field="line.price_total"/>
                                     <span t-else="" t-field="line.price_subtotal"/>
                                 </td>
@@ -152,7 +208,7 @@
 
                         <t t-elif="line.display_type == 'line_section' or line.product_type == 'combo'">
                             <tr>
-                                <td colspan="99" style="padding:9px 10px 7px 10px;font-size:12.5px;font-weight:700;color:#0B1F3A;background-color:#EAF2FE;border-left:3px solid #2878F8;letter-spacing:.6px;">
+                                <td colspan="99" style="padding:9px 10px 7px 10px;font-size:12.5px;font-weight:700;color:#0B1F3A;background-color:#EAF2FE;border-left:3px solid #2878F8 !important;letter-spacing:.6px;">
                                     <span t-field="line.name"/>
                                 </td>
                             </tr>
@@ -162,7 +218,7 @@
 
                         <t t-elif="line.display_type == 'line_note'">
                             <tr>
-                                <td colspan="99" style="padding:6px 10px;font-size:12px;font-style:italic;color:#64748B;">
+                                <td colspan="99" style="border:0 !important;padding:6px 10px;font-size:12px;font-style:italic;color:#64748B;">
                                     <span t-field="line.name"/>
                                 </td>
                             </tr>
@@ -171,7 +227,7 @@
                         <t t-if="seccion_actual and (line_last or lineas[line_index+1].display_type == 'line_section' or lineas[line_index+1].product_type == 'combo') and not line.is_downpayment">
                             <t t-set="seccion_actual" t-value="None"/>
                             <tr>
-                                <td colspan="99" style="padding:5px 10px;text-align:right;font-size:12px;background-color:#F8FAFD;border-bottom:1px solid #E2E8F0;">
+                                <td colspan="99" style="padding:5px 10px;text-align:right;font-size:12px;background-color:#F8FAFD;border-bottom:1px solid #E2E8F0 !important;">
                                     <span style="color:#64748B;margin-right:10px;">Subtotal de la sección</span>
                                     <span style="font-weight:700;color:#0B1F3A;" t-out="subtotal_seccion" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
                                 </td>
@@ -186,9 +242,9 @@
             </div>
 
             <!-- ═══════════ TOTALES ═══════════ -->
-            <table style="width:100%;border-collapse:collapse;margin-top:12px;">
+            <table style="width:100%;border-collapse:collapse !important;margin-top:12px;">
                 <tr>
-                    <td style="width:58%;vertical-align:top;">
+                    <td style="border:0 !important;width:58%;vertical-align:top;">
                         <t t-if="doc.signature">
                             <div style="font-size:10px;color:#64748B;letter-spacing:1.2px;">ACEPTADO POR</div>
                             <img t-att-src="image_data_uri(doc.signature)" style="max-height:2.4cm;max-width:5.5cm;margin-top:3px;"/>
@@ -197,23 +253,23 @@
                             </div>
                         </t>
                     </td>
-                    <td style="width:42%;vertical-align:top;">
-                        <table style="width:100%;border-collapse:collapse;">
+                    <td style="border:0 !important;width:42%;vertical-align:top;">
+                        <table style="width:100%;border-collapse:collapse !important;">
                             <tr>
-                                <td style="padding:8px 12px;font-size:13px;color:#64748B;border:1px solid #E2E8F0;border-bottom:none;">Subtotal</td>
-                                <td style="padding:8px 12px;font-size:13px;color:#0B1F3A;text-align:right;white-space:nowrap;border:1px solid #E2E8F0;border-bottom:none;border-left:none;">
+                                <td style="padding:8px 12px;font-size:13px;color:#64748B;border:1px solid #E2E8F0 !important;border-bottom:none !important;">Subtotal</td>
+                                <td style="padding:8px 12px;font-size:13px;color:#0B1F3A;text-align:right;white-space:nowrap;border:1px solid #E2E8F0 !important;border-bottom:none !important;border-left:none !important;">
                                     <span t-field="doc.amount_untaxed" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
                                 </td>
                             </tr>
                             <tr t-if="doc.amount_tax">
-                                <td style="padding:8px 12px;font-size:13px;color:#64748B;border:1px solid #E2E8F0;border-bottom:none;">Impuestos</td>
-                                <td style="padding:8px 12px;font-size:13px;color:#0B1F3A;text-align:right;white-space:nowrap;border:1px solid #E2E8F0;border-bottom:none;border-left:none;">
+                                <td style="padding:8px 12px;font-size:13px;color:#64748B;border:1px solid #E2E8F0 !important;border-bottom:none !important;">Impuestos</td>
+                                <td style="padding:8px 12px;font-size:13px;color:#0B1F3A;text-align:right;white-space:nowrap;border:1px solid #E2E8F0 !important;border-bottom:none !important;border-left:none !important;">
                                     <span t-field="doc.amount_tax" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
                                 </td>
                             </tr>
                             <tr style="background-color:#0B1F3A;">
-                                <td style="padding:10px 12px;font-size:13px;font-weight:700;color:#FFFFFF;letter-spacing:1.2px;">TOTAL</td>
-                                <td style="padding:10px 12px;font-size:17px;font-weight:700;color:#FFFFFF;text-align:right;white-space:nowrap;">
+                                <td style="border:0 !important;padding:10px 12px;font-size:13px;font-weight:700;color:#FFFFFF;letter-spacing:1.2px;">TOTAL</td>
+                                <td style="border:0 !important;padding:10px 12px;font-size:17px;font-weight:700;color:#FFFFFF;text-align:right;white-space:nowrap;">
                                     <span t-field="doc.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
                                 </td>
                             </tr>
@@ -230,6 +286,8 @@
             <div t-if="doc.fiscal_position_id and not is_html_empty(doc.fiscal_position_id.sudo().note)"
                  style="margin-top:8px;font-size:12px;color:#475569;">
                 <strong>Nota fiscal:</strong> <span t-field="doc.fiscal_position_id.sudo().note"/>
+            </div>
+
             </div>
 
         </t>
