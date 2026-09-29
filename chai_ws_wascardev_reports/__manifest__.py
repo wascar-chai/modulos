@@ -23,7 +23,7 @@ El diseno anterior vivia solo dentro de la base de datos, en el modulo
 `custom_reports`, que no tiene codigo en ningun repositorio. Al instalar este
 modulo esa plantilla se desactiva sola, y queda esta, que si esta versionada.
 """,
-    "version": "18.0.1.1.0",
+    "version": "18.0.1.2.0",
     "category": "Sales/Sales",
     "author": "CHAI Consultoria y Software",
     "website": "https://chaiconsultoria.com",

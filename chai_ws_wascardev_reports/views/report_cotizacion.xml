@@ -160,12 +160,12 @@
             <table style="width:100%;border-collapse:collapse !important;">
                 <thead style="border:0 !important;">
                     <tr style="background-color:#0B1F3A;">
-                        <th style="border:0 !important;padding:7px 10px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:left;">DESCRIPCIÓN</th>
-                        <th style="border:0 !important;padding:7px 8px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">CANT.</th>
-                        <th style="border:0 !important;padding:7px 8px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">PRECIO</th>
-                        <th t-if="hay_descuento" style="border:0 !important;padding:7px 8px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">DESC.</th>
-                        <th t-if="hay_impuestos" style="border:0 !important;padding:7px 8px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">IMP.</th>
-                        <th style="border:0 !important;padding:7px 10px;color:#FFFFFF;font-size:10.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">IMPORTE</th>
+                        <th style="border:0 !important;padding:7px 10px;color:#FFFFFF;font-size:13.5px;font-weight:700;letter-spacing:1px;text-align:left;">DESCRIPCIÓN</th>
+                        <th style="border:0 !important;padding:7px 8px;color:#FFFFFF;font-size:13.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">CANT.</th>
+                        <th style="border:0 !important;padding:7px 8px;color:#FFFFFF;font-size:13.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">PRECIO</th>
+                        <th t-if="hay_descuento" style="border:0 !important;padding:7px 8px;color:#FFFFFF;font-size:13.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">DESC.</th>
+                        <th t-if="hay_impuestos" style="border:0 !important;padding:7px 8px;color:#FFFFFF;font-size:13.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">IMP.</th>
+                        <th style="border:0 !important;padding:7px 10px;color:#FFFFFF;font-size:13.5px;font-weight:700;letter-spacing:1px;text-align:right;white-space:nowrap;">IMPORTE</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -176,30 +176,30 @@
 
                         <t t-if="not line.display_type and line.product_type != 'combo'">
                             <tr style="border-bottom:1px solid #EDF2F7 !important;">
-                                <td style="border:0 !important;padding:8px 10px;font-size:13px;color:#0B1F3A;vertical-align:top;">
+                                <td style="border:0 !important;padding:8px 10px;font-size:16px;color:#0B1F3A;vertical-align:top;">
                                     <div style="font-weight:700;">
                                         <span t-if="line.product_id" t-field="line.product_id.display_name"/>
                                         <span t-else="" t-field="line.name"/>
                                     </div>
                                     <div t-if="line.product_id and line.name and len(line.name.split(chr(10))) &gt; 1"
-                                         style="font-size:12px;color:#64748B;margin-top:3px;line-height:1.5;white-space:pre-line;">
+                                         style="font-size:15px;color:#64748B;margin-top:3px;line-height:1.5;white-space:pre-line;">
                                         <span t-out="chr(10).join(line.name.split(chr(10))[1:]).strip()"/>
                                     </div>
                                 </td>
-                                <td style="border:0 !important;padding:8px 8px;font-size:13px;color:#334155;text-align:right;white-space:nowrap;vertical-align:top;">
+                                <td style="border:0 !important;padding:8px 8px;font-size:16px;color:#334155;text-align:right;white-space:nowrap;vertical-align:top;">
                                     <span t-field="line.product_uom_qty"/>
-                                    <span style="color:#94A3B8;font-size:11px;" t-field="line.product_uom.name"/>
+                                    <span style="color:#94A3B8;font-size:14px;" t-field="line.product_uom.name"/>
                                 </td>
-                                <td style="border:0 !important;padding:8px 8px;font-size:13px;color:#334155;text-align:right;white-space:nowrap;vertical-align:top;">
+                                <td style="border:0 !important;padding:8px 8px;font-size:16px;color:#334155;text-align:right;white-space:nowrap;vertical-align:top;">
                                     <span t-field="line.price_unit" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
                                 </td>
-                                <td t-if="hay_descuento" style="border:0 !important;padding:8px 8px;font-size:13px;color:#334155;text-align:right;vertical-align:top;white-space:nowrap;">
+                                <td t-if="hay_descuento" style="border:0 !important;padding:8px 8px;font-size:16px;color:#334155;text-align:right;vertical-align:top;white-space:nowrap;">
                                     <t t-if="line.discount"><span t-out="line.discount" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/>%</t>
                                 </td>
-                                <td t-if="hay_impuestos" style="border:0 !important;padding:8px 8px;font-size:11px;color:#64748B;text-align:right;vertical-align:top;white-space:nowrap;">
+                                <td t-if="hay_impuestos" style="border:0 !important;padding:8px 8px;font-size:14px;color:#64748B;text-align:right;vertical-align:top;white-space:nowrap;">
                                     <span t-out="', '.join([(imp.invoice_label or imp.name) for imp in line.tax_id if imp.amount])"/>
                                 </td>
-                                <td style="border:0 !important;padding:8px 10px;font-size:13px;font-weight:700;color:#0B1F3A;text-align:right;white-space:nowrap;vertical-align:top;">
+                                <td style="border:0 !important;padding:8px 10px;font-size:16px;font-weight:700;color:#0B1F3A;text-align:right;white-space:nowrap;vertical-align:top;">
                                     <span t-if="doc.company_price_include == 'tax_included'" t-field="line.price_total"/>
                                     <span t-else="" t-field="line.price_subtotal"/>
                                 </td>
@@ -208,7 +208,7 @@
 
                         <t t-elif="line.display_type == 'line_section' or line.product_type == 'combo'">
                             <tr>
-                                <td colspan="99" style="padding:9px 10px 7px 10px;font-size:12.5px;font-weight:700;color:#0B1F3A;background-color:#EAF2FE;border-left:3px solid #2878F8 !important;letter-spacing:.6px;">
+                                <td colspan="99" style="padding:9px 10px 7px 10px;font-size:15.5px;font-weight:700;color:#0B1F3A;background-color:#EAF2FE;border-left:3px solid #2878F8 !important;letter-spacing:.6px;">
                                     <span t-field="line.name"/>
                                 </td>
                             </tr>
@@ -218,7 +218,7 @@
 
                         <t t-elif="line.display_type == 'line_note'">
                             <tr>
-                                <td colspan="99" style="border:0 !important;padding:6px 10px;font-size:12px;font-style:italic;color:#64748B;">
+                                <td colspan="99" style="border:0 !important;padding:6px 10px;font-size:15px;font-style:italic;color:#64748B;">
                                     <span t-field="line.name"/>
                                 </td>
                             </tr>
@@ -227,7 +227,7 @@
                         <t t-if="seccion_actual and (line_last or lineas[line_index+1].display_type == 'line_section' or lineas[line_index+1].product_type == 'combo') and not line.is_downpayment">
                             <t t-set="seccion_actual" t-value="None"/>
                             <tr>
-                                <td colspan="99" style="padding:5px 10px;text-align:right;font-size:12px;background-color:#F8FAFD;border-bottom:1px solid #E2E8F0 !important;">
+                                <td colspan="99" style="padding:5px 10px;text-align:right;font-size:15px;background-color:#F8FAFD;border-bottom:1px solid #E2E8F0 !important;">
                                     <span style="color:#64748B;margin-right:10px;">Subtotal de la sección</span>
                                     <span style="font-weight:700;color:#0B1F3A;" t-out="subtotal_seccion" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
                                 </td>
@@ -237,7 +237,7 @@
                 </tbody>
             </table>
 
-            <div t-if="solo_exentos" style="margin-top:6px;font-size:11px;color:#64748B;font-style:italic;">
+            <div t-if="solo_exentos" style="margin-top:6px;font-size:14px;color:#64748B;font-style:italic;">
                 Precios exentos de ITBIS.
             </div>
 
