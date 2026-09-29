@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Papel y estructura propios: no se usa el layout de Odoo.
+
+        El PDF lo dibuja wkhtmltopdf, que es un WebKit viejo: no entiende
+        flexbox, grid ni degradados. Por eso el armado va con tablas y colores
+        planos, que es lo unico que se ve igual en pantalla y en papel.
+
+        Paleta, tomada del logo:
+          #0B1F3A  azul noche, para titulos y la banda del total
+          #2878F8  azul de la marca, para acentos
+          #EAF2FE  azul muy claro, para fondos suaves
+          #64748B  gris de apoyo
+          #E2E8F0  bordes
+    -->
+    <record id="paperformat_wascardev" model="report.paperformat">
+        <field name="name">WascarDev - Carta</field>
+        <field name="format">Letter</field>
+        <field name="orientation">Portrait</field>
+        <!--
+            El margen de arriba tiene que dar cabida a la cabecera completa mas
+            su separacion: si se queda corto, wkhtmltopdf recorta la cabecera y
+            solo se ve su ultima linea.
+        -->
+        <field name="margin_top">44</field>
+        <field name="margin_bottom">42</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_spacing">6</field>
+        <field name="header_line" eval="False"/>
+        <field name="dpi">96</field>
+    </record>
+
+    <!--
+        Estructura de pagina. Odoo saca de aqui tres piezas: el div .header va
+        al margen superior de cada pagina, el .footer al inferior, y el
+        contenido de .article es el cuerpo.
+    -->
+    <template id="layout_wascardev">
+        <t t-set="empresa" t-value="doc.company_id"/>
+        <t t-set="socio_empresa" t-value="empresa.partner_id"/>
+
+        <!-- ══════════ CABECERA ══════════ -->
+        <div class="header">
+            <table style="width:100%;border-collapse:collapse;">
+                <tr>
+                    <td style="width:42%;vertical-align:middle;">
+                        <img t-if="empresa.logo" t-att-src="image_data_uri(empresa.logo)"
+                             style="max-height:86px;max-width:320px;" alt="Logo"/>
+                        <div t-else="" style="font-size:26px;font-weight:700;color:#0B1F3A;">
+                            <span t-field="empresa.name"/>
+                        </div>
+                    </td>
+                    <td style="width:58%;vertical-align:middle;text-align:right;font-size:11.5px;color:#64748B;line-height:1.55;">
+                        <div style="font-size:16px;font-weight:700;color:#0B1F3A;letter-spacing:.3px;margin-bottom:2px;">
+                            <span t-field="empresa.name"/>
+                        </div>
+                        <div t-if="empresa.vat">
+                            <t t-out="empresa.account_fiscal_country_id.vat_label or 'RNC / Cédula'"/>:
+                            <span t-field="empresa.vat"/>
+                        </div>
+                        <div t-if="socio_empresa.street or socio_empresa.city">
+                            <span t-if="socio_empresa.street" t-field="socio_empresa.street"/><t t-if="socio_empresa.street and socio_empresa.city">, </t><span t-if="socio_empresa.city" t-field="socio_empresa.city"/>
+                        </div>
+                        <div t-if="socio_empresa.phone or socio_empresa.mobile">
+                            <span t-if="socio_empresa.phone" t-field="socio_empresa.phone"/><t t-if="socio_empresa.phone and socio_empresa.mobile"> · </t><span t-if="socio_empresa.mobile" t-field="socio_empresa.mobile"/>
+                        </div>
+                        <div t-if="socio_empresa.email or socio_empresa.website">
+                            <span t-if="socio_empresa.email" t-field="socio_empresa.email"/><t t-if="socio_empresa.email and socio_empresa.website"> · </t><span t-if="socio_empresa.website" t-field="socio_empresa.website"/>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div style="height:2px;background-color:#2878F8;margin-top:8px;"/>
+        </div>
+
+        <!-- ══════════ CUERPO ══════════ -->
+        <div class="article"
+             t-att-data-oe-model="doc and doc._name"
+             t-att-data-oe-id="doc and doc.id"
+             t-att-data-oe-lang="doc and doc.env.context.get('lang')">
+            <t t-out="0"/>
+        </div>
+
+        <!-- ══════════ PIE ══════════ -->
+        <!--
+            Los datos para el pago van aqui, no al final del cuerpo. Puestos en
+            el cuerpo quedaban justo debajo de los totales y dejaban media hoja
+            en blanco; en el pie se apoyan siempre abajo, salga la cotizacion de
+            tres lineas o de treinta. Salen de las cuentas bancarias de la
+            compania (Contabilidad > Configuracion > Cuentas bancarias).
+        -->
+        <div class="footer">
+            <t t-set="cuentas" t-value="socio_empresa.bank_ids.filtered(lambda b: not b.company_id or b.company_id == empresa)"/>
+            <div style="border-top:2px solid #E2E8F0;padding-top:7px;">
+                <table style="width:100%;border-collapse:collapse;">
+                    <tr>
+                        <td style="width:62%;vertical-align:top;">
+                            <t t-if="cuentas">
+                                <div style="font-size:10px;font-weight:700;color:#2878F8;letter-spacing:1.4px;margin-bottom:4px;">DATOS PARA EL PAGO</div>
+                                <table style="border-collapse:collapse;font-size:11.5px;">
+                                    <tr t-foreach="cuentas" t-as="cuenta">
+                                        <td style="padding:1px 0;color:#0B1F3A;font-weight:700;white-space:nowrap;">
+                                            <span t-if="cuenta.bank_id" t-field="cuenta.bank_id.name"/>
+                                            <span t-else="">Cuenta</span>
+                                            <span t-if="cuenta.chai_tipo_cuenta" style="font-weight:400;color:#64748B;">
+                                                (<t t-out="dict(cuenta._fields['chai_tipo_cuenta'].selection)[cuenta.chai_tipo_cuenta]"/>)
+                                            </span>
+                                        </td>
+                                        <td style="padding:1px 0 1px 16px;color:#475569;white-space:nowrap;">
+                                            <span t-field="cuenta.acc_number"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div t-if="cuentas[0].acc_holder_name" style="font-size:11px;color:#64748B;margin-top:2px;">
+                                    A nombre de <span t-field="cuentas[0].acc_holder_name"/>
+                                </div>
+                            </t>
+                        </td>
+                        <td style="width:38%;vertical-align:bottom;text-align:right;font-size:10.5px;color:#94A3B8;">
+                            <div t-if="empresa.report_header">
+                                <span t-field="empresa.report_header"/>
+                            </div>
+                            <div style="margin-top:2px;white-space:nowrap;">
+                                Página <span class="page"/> de <span class="topage"/>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </template>
+
+</odoo>
